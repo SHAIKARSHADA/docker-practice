@@ -1,13 +1,13 @@
-FROM  node:16-alpine
+FROM node:20
 
 WORKDIR /app
 
 COPY . .
 
-run npm install
-run npm run build
-run npx prisma generate
+RUN npm install
+RUN npm run build
+RUN npx prisma generate
 
-expose 3000
+EXPOSE 3000
 
-cmd ["node","dist/index.js"]
+CMD ["node","dist/index.js"]
