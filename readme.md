@@ -120,7 +120,7 @@ docker rmi image-name ( to remove an docker image from your mac machine)
 * Try visiting localhost:3000
 
 ## 12 - Passing in env variables
-> docker run -p 3000:3000 -e DATABASE_URL="postgres://avnadmin:AVNS_EeDiMIdW-dNT4Ox9l1n@pg-35339ab4-harkirat-d1b9.a.aivencloud.com:25579/defaultdb?sslmode=require" image_name
+> docker run -p 3000:3000 -e DATABASE_URL="postgres://avnadmind.com:25579/defaultdb?sslmode=require" image_name
  
 * The -e argument let’s you send in environment variables to your node.js app
 
