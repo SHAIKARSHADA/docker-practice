@@ -119,7 +119,7 @@ docker rmi image-name ( to remove an docker image from your mac machine)
 
 * Try visiting localhost:3000
 
-## 12 - Passing in env variables
+## Passing in env variables
 > docker run -p 3000:3000 -e DATABASE_URL="databaseurl connection string long thing" image_name
  
 * The -e argument let’s you send in environment variables to your node.js app
@@ -133,4 +133,6 @@ docker rmi image-name ( to remove an docker image from your mac machine)
 
 2. Running an Interactive Shell
 > docker exec -it <container_name_or_id> /bin/bash
+
+in here if you want to run it interactively and use every single thing inside it then use -it or else wanna see what are the files in the just use exec and with ls, just giving an example for minimal use case.
 
