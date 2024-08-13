@@ -136,3 +136,118 @@ docker rmi image-name ( to remove an docker image from your mac machine)
 
 in here if you want to run it interactively and use every single thing inside it then use -it or else wanna see what are the files in the just use exec and with ls, just giving an example for minimal use case.
 
+## Layers practically
+ 
+### Observations - 
+* Base image creates the first layer
+* Each RUN, COPY , WORKDIR  command creates a new layer
+* Layers can get re-used across docker builds (notice CACHED in 1/6) It won't say it is cached but is cached in their
+
+## why are we caching is because we want to reduce the build time that's why we are using caching
+
+* so , in this two code below the first one is unoptimized and the second one is optimized
+
+> FROM node:20
+> WORKDIR usr/src/app
+> COPY . .
+> RUN npm install
+> RUN npx prisma generate
+> RUN npm run build 
+> EXPOSE 3000
+> CMD ["node", "dist/index.js"]
+
+* In this first one it's unoptimized and we are using npm install after each stuff. 
+* so, in the next step we are adding some layers to make it optimized.
+
+> FROM node:20
+> WORKDIR usr/src/app
+> COPY package* .
+> COPY ./prisma . 
+> RUN npm install
+> RUN npx prisma generate 
+> COPY . .
+> RUN npm run build 
+> EXPOSE 3000
+> CMD ["node","dist/index.js"]
+
+* In the second one it is optimized, If we have existing package Then caching kicks in and executes it fast, if it has an new package then we install it and create the prisma generate and then npm i all and the rest of the code that we are gonna use . and we are running the npm run build and exposing it to listen 3000 and running commands
+
+## Networks and Volumes
+
+### Networks and volumes are concepts that become important when you have multiple containers running in which you
+* Need to persist data across docker restarts
+* Need to allow containers to talk to each other
+
+### Containers are transitory
+* If you start an container, you can store the data in them.
+* If you kill an container, That data goes away. 
+
+# Volumes
+* If you restart a mongo docker container, you will notice that your data goes away. 
+* This is because docker containers are transitory (they don’t retain data across restarts)
+
+## Without volumes
+### Start a mongo container locally
+
+> docker run -p 27017:27017 -d mongo
+
+* Open it in MongoDB Compass and add some data to it
+* Kill the container
+> docker kill <container_id>
+
+* Restart the container
+> docker run -p 27017:27017 -d mongo
+
+#### Try to explore the database in Compass and check if the data has persisted (it wouldn’t)
+ 
+## With volumes
+### Create a volume
+
+> docker volume create volume_database
+
+* Mount the folder in mongo which actually stores the data to this volume
+> docker run -v volume_database:/data/db -p 27017:27017 mongo
+
+* Open it in MongoDB Compass and add some data to it
+* Kill the container
+> docker kill <container_id>
+
+* Restart the container
+> docker run -v volume_database:/data/db -p 27017:27017 mongo
+
+#### Try to explore the database in Compass and check if the data has persisted (it will!)
+
+
+# Networks 
+
+* If you have an node.js app that has containerised mongodb 
+* you can talk to it normally, but when you have the both of the node.js app and the containerised mongodb this becomes an problem in here .
+* containers are dumb they don't know they have an host machine. so , we use networks between node.js container and mongodb container to make them communicate to each other.kk
+
+* In Docker, a network is a powerful feature that allows containers to communicate with each other and with the outside world.
+* Docker containers can’t talk to each other by default.
+* localhost on a docker container means it's own network and not the network of the host machine
+
+#### How to make containers talk to each other?
+* Attach them to the same network
+
+* Build the image
+> docker build -t image_tag .
+
+* Create a network
+> docker network create my_custom_network
+
+* Start the backend process with the network attached to it
+> docker run -d -p 3000:3000 --name backend --network my_custom_network image_tag
+* Start mongo on the same network
+> docker run -d -v volume_database:/data/db --name mongo --network my_custom_network -p 27017:27017 mongo
+
+* Check the logs to ensure the db connection is successful
+> docker logs <container_id>
+
+### Try to visit an endpoint and ensure you are able to talk to the database
+### If you want, you can remove the port mapping for mongo since you don’t necessarily need it exposed on your machine
+
+## Types of networks
+### Bridge: The default network driver for containers. When you run a container without specifying a network, it's attached to a bridge network. It provides a private internal network on the host machine, and containers on the same bridge network can communicate with each other.
+#### Host: Removes network isolation between the container and the Docker host, and uses the host's networking directly. This is useful for services that need to handle lots of traffic or need to expose many ports.

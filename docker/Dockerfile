@@ -1,12 +1,18 @@
 FROM node:20
 
-WORKDIR /app
+WORKDIR /usr/src/app
+
+COPY package* .
+COPY ./prisma .
+
+
+RUN npm install
+RUN npx prisma generate
+
 
 COPY . .
 
-RUN npm install
 RUN npm run build
-RUN npx prisma generate
 
 EXPOSE 3000
 

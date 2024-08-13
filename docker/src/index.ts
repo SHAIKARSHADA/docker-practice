@@ -12,6 +12,8 @@ app.get("/",async (req: Request, res: Response) => {
   })
 })
 
+
+
 app.post("/",async (req: Request, res: Response) => {
   await client.user.create({
     data: {
