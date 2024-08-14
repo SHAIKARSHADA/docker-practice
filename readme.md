@@ -298,3 +298,12 @@ Install docker-compose - https://docs.docker.com/compose/install/
 >
 >volumes:
 >  mongodb_data:
+
+
+## bind mounts 
+* good to know what it does, so. in the image we have build we can run exec and change some content inside it and it can reflect on the port that we are running it on. 
+* but while it comes developer he does that on vs code so, before running the image just adding this below command can change that to connect the work dir to be mounted with the img and it reflects the changes made in vs code's ./app 
+
+> docker run -p 3000:3000 -v ./app:/workdir-name/app image-name
+
+In here we are giving the ./app its the workdir we have specified and add colon and the image-name and inside which what we want to mount to make the hot reload possible. 
