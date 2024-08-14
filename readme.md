@@ -251,3 +251,50 @@ in here if you want to run it interactively and use every single thing inside it
 ## Types of networks
 ### Bridge: The default network driver for containers. When you run a container without specifying a network, it's attached to a bridge network. It provides a private internal network on the host machine, and containers on the same bridge network can communicate with each other.
 #### Host: Removes network isolation between the container and the Docker host, and uses the host's networking directly. This is useful for services that need to handle lots of traffic or need to expose many ports.
+
+## compose 
+
+* Docker Compose is a tool designed to help you define and run multi-container Docker applications. With Compose, you use a YAML file to configure your application's services, networks, and volumes. Then, with a single command, you can create and start all the services from your configuration.
+
+### Before docker-compose
+* Create a network
+> docker network create my_custom_network
+* Create a volume
+> docker volume create volume_database
+* Start mongo container
+> docker run -d -v volume_database:/data/db --name mongo --network my_custom_network  mongo
+* Start backend container
+> docker run -d -p 3000:3000 --name backend --network my_custom_network backend
+* After docker-compose
+Install docker-compose - https://docs.docker.com/compose/install/
+* Create a yaml file describing all your containers and volumes (by default all containers in a docker-compose run on the same network)
+
+* Start the compose / Start command
+> docker-compose up
+* Stop everything (including volumes) / Stop command
+> docker-compose down --volumes
+
+* final file would look something like this in docker 
+## docker-compose.yaml
+>version: '3.8'
+>services:
+>  mongodb:
+>    image: mongo
+>    container_name: mongodb
+>     ports:
+>      - "27017:27017"
+>    volumes:
+>      - mongodb_data:/data/db
+>
+>  backend22:
+>    image: backend
+>    container_name: backend_app
+>    depends_on:
+>      - mongodb
+>    ports:
+>      - "3000:3000"
+>    environment:
+>      MONGO_URL: "mongodb://mongodb:27017"
+>
+>volumes:
+>  mongodb_data:
